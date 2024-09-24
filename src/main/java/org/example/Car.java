@@ -9,4 +9,12 @@ public class Car {
         this.color = color;
     }
 
+    public boolean isColor(CarColor color) {
+        return this.color == color;
+    }
+
+    public boolean hasRegistrationNumber(String registrationNumber) {
+        return this.registrationNumber.equals(registrationNumber);
+    }
+
 }

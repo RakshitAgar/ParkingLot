@@ -6,7 +6,7 @@ import java.util.Map;
 public class ParkingLot {
     private final int lotSize;
     private boolean isFull;
-    private final boolean[] slotAvailable;
+    private final ParkingSlot[] parkingSlots;
     private final Map<Integer, Car> parkedCars;
 
     public ParkingLot(int lotSize) throws Exception {
@@ -14,21 +14,18 @@ public class ParkingLot {
             throw new Exception("LotSize must be greater than 0");
         }
         this.lotSize = lotSize;
-        this.slotAvailable = new boolean[lotSize+1];
-        for (int i = 0; i < lotSize; i++) {
-            slotAvailable[i] = true;
-        }
+        this.parkingSlots = new ParkingSlot[lotSize];
         this.parkedCars = new HashMap<>();
         this.isFull = false;
+        for (int i = 0; i < lotSize; i++) {
+            parkingSlots[i] = new ParkingSlot(i + 1);
+        }
     }
 
-    public void parkCar(Car car) throws Exception {
-        if(findNearestSlot() ==  null){
-            throw new Exception("Slot not available");
-        }
+    public void park(Car car) throws Exception {
         Integer parkingSlotNumber = findNearestSlot();
-        slotAvailable[parkingSlotNumber] = false;
-        parkedCars.put(parkingSlotNumber, car);
+        parkingSlots[parkingSlotNumber-1].setSlotStatusOccupied();
+        parkedCars.put(parkingSlotNumber - 1, car);
         if (parkedCars.size() == lotSize) {
             this.isFull = true;
         }
@@ -39,22 +36,43 @@ public class ParkingLot {
     }
 
     public Integer findNearestSlot() throws Exception {
-        for (int i = 0; i < lotSize; i++) {
-            if (slotAvailable[i]) return i+1;
-        }
-        return null;
-    }
-
-    public boolean unParkCar(Car carToUnParked) throws Exception {
-        for (int i = 0; i < lotSize; i++) {
-            Car car = parkedCars.get(i);
-            if (car != null && car.equals(carToUnParked)) {
-                slotAvailable[i] = false;
-                parkedCars.remove(i);
-                return true;
+        if(!isParkingLotFull()){
+            for (int slotNumber = 0; slotNumber < lotSize; slotNumber++) {
+                if (parkingSlots[slotNumber].isSlotAvailable()) return slotNumber+1;
             }
         }
-        return false;
+        throw new Exception("Parking lot is full");
     }
 
+    public int countCarsByColor(CarColor color) {
+        int count = 0;
+        for (Car car : parkedCars.values()) {
+            if (car.isColor(color)) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    public Car carParkedWithRegistrationNumber(String registrationNumber) throws Exception {
+        for (Car car : parkedCars.values()) {
+            if (car.hasRegistrationNumber(registrationNumber)) {
+                return car;
+            }
+        }
+        throw new Exception("Car with registration number not found");
+    }
+
+    public Car unPark(String registrationNumber) throws Exception {
+        for (int i = 0; i < lotSize; i++) {
+            Car car = parkedCars.get(i);
+            if (car != null && car.hasRegistrationNumber(registrationNumber)){
+                if(isParkingLotFull()) isFull = false;
+                parkingSlots[i].setSlotStatusEmpty();
+                parkedCars.remove(i);
+                return car;
+            }
+        }
+        throw new Exception("Car not found in the parking lot");
+    }
 }
