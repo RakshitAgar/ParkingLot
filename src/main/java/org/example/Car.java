@@ -1,5 +1,7 @@
 package org.example;
 
+import org.example.Enums.CarColor;
+
 public class Car {
     private final String registrationNumber;
     private final CarColor color;

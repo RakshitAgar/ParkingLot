@@ -1,5 +1,7 @@
 package org.example;
 
+import org.example.Enums.SlotStatus;
+
 public class ParkingSlot {
     private Integer slotNumber;
     private SlotStatus slotStatus;

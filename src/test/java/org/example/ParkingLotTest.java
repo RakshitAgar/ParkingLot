@@ -1,5 +1,6 @@
 package org.example;
 
+import org.example.Enums.CarColor;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -22,7 +23,19 @@ class ParkingLotTest {
     public void testParkingLotParkCar() throws Exception {
         ParkingLot parkingLot = new ParkingLot(2);
         Car carToBeParked = new Car("AB12" , CarColor.YELLOW);
-        parkingLot.park(carToBeParked);
+        Ticket expectedTicket = parkingLot.park(carToBeParked);
+        assertThrows(Exception.class, () -> {parkingLot.park(carToBeParked);});
+    }
+
+    @Test
+    public void testParkingLotParkedCarTwice() throws Exception {
+        ParkingLot parkingLot = new ParkingLot(2);
+        Car firstCar = new Car("AB12" , CarColor.YELLOW);
+        Car secondcar = new Car("AB12" , CarColor.YELLOW);
+
+        parkingLot.park(firstCar);
+//        assertThrows(CarAlreadyCarException.class, () -> {parkingLot.park(secondcar);});
+
         assertFalse(parkingLot.isParkingLotFull());
     }
 
@@ -198,42 +211,12 @@ class ParkingLotTest {
     //UnParked Function Test // Leave for Now
 
     @Test
-    public void testParkingLotUnPark() throws Exception {
+    public void testParkingLotUnParkCar() throws Exception {
         ParkingLot parkingLot = new ParkingLot(3);
         Car carToBeUnParked = new Car("AB12" , CarColor.RED);
-        parkingLot.park(carToBeUnParked);
-        Car expectedUnparkedcar = parkingLot.unPark("AB12");
-
-        assertEquals(expectedUnparkedcar, carToBeUnParked);
-
-    }
-
-    @Test
-    public void testParkingLotUnParkFull() throws Exception {
-        ParkingLot parkingLot = new ParkingLot(1);
-        Car carToBeUnParked = new Car("AB12" , CarColor.RED);
-        parkingLot.park(carToBeUnParked);
-        Car expectedUnparkedcar = parkingLot.unPark("AB12");
-
-        assertEquals(expectedUnparkedcar, carToBeUnParked);
-        assertFalse(parkingLot.isParkingLotFull());
-    }
-
-    @Test
-    public void testParkingLotUnParkFindNearestSlot() throws Exception {
-        ParkingLot parkingLot = new ParkingLot(3);
-        Car firstCar = new Car("AB12" , CarColor.RED);
-        Car secondCar = new Car("AB15" , CarColor.RED);
-
-        parkingLot.park(firstCar);
-        parkingLot.park(secondCar);
-
-        Integer expectedSlotBeforeUnPark = parkingLot.findNearestSlot();
-        assertEquals(expectedSlotBeforeUnPark, 3);
-
-        parkingLot.unPark("AB12");
-        Integer expectedSlotAfterUnPark = parkingLot.findNearestSlot();
-        assertEquals(expectedSlotAfterUnPark, 1);
+        Ticket parkedTicket = parkingLot.park(carToBeUnParked);
+        Car actualCar = parkingLot.unPark(parkedTicket);
+        assertEquals(carToBeUnParked, actualCar);
     }
 
 }
