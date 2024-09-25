@@ -1,6 +1,7 @@
 package org.example;
 
 import org.example.Enums.CarColor;
+import org.example.Exceptions.CarAlreadyPresentException;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -23,18 +24,16 @@ class ParkingLotTest {
     public void testParkingLotParkCar() throws Exception {
         ParkingLot parkingLot = new ParkingLot(2);
         Car carToBeParked = new Car("AB12" , CarColor.YELLOW);
-        Ticket expectedTicket = parkingLot.park(carToBeParked);
-        assertThrows(Exception.class, () -> {parkingLot.park(carToBeParked);});
+        assertDoesNotThrow(() -> {parkingLot.park(carToBeParked);});
     }
 
     @Test
     public void testParkingLotParkedCarTwice() throws Exception {
         ParkingLot parkingLot = new ParkingLot(2);
         Car firstCar = new Car("AB12" , CarColor.YELLOW);
-        Car secondcar = new Car("AB12" , CarColor.YELLOW);
 
         parkingLot.park(firstCar);
-//        assertThrows(CarAlreadyCarException.class, () -> {parkingLot.park(secondcar);});
+        assertThrows(CarAlreadyPresentException.class, () -> {parkingLot.park(firstCar);});
 
         assertFalse(parkingLot.isParkingLotFull());
     }
@@ -207,9 +206,6 @@ class ParkingLotTest {
 
 
 
-
-    //UnParked Function Test // Leave for Now
-
     @Test
     public void testParkingLotUnParkCar() throws Exception {
         ParkingLot parkingLot = new ParkingLot(3);
@@ -218,5 +214,19 @@ class ParkingLotTest {
         Car actualCar = parkingLot.unPark(parkedTicket);
         assertEquals(carToBeUnParked, actualCar);
     }
+
+    @Test
+    public void testParkingLotUnParkWithWrongTicket() throws Exception {
+        ParkingLot parkingLot = new ParkingLot(3);
+        Car firstCar = new Car("AB12" , CarColor.RED);
+        Ticket parkedTicket = parkingLot.park(firstCar);
+        parkingLot.unPark(parkedTicket);
+        Ticket wrongTicket = new Ticket("AA",2);
+        assertThrows(Exception.class, () -> parkingLot.unPark(wrongTicket));
+
+    }
+
+
+
 
 }

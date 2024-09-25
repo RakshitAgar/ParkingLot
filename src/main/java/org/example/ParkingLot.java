@@ -2,6 +2,7 @@ package org.example;
 
 
 import org.example.Enums.CarColor;
+import org.example.Exceptions.CarAlreadyPresentException;
 
 import java.util.*;
 
@@ -28,7 +29,7 @@ public class ParkingLot {
 
     public Ticket park(Car car) throws Exception {
         if (parkedCars.containsKey(car)) {
-            throw new Exception("This car is already parked in the lot.");
+            throw new CarAlreadyPresentException("This car is already parked in the lot.");
         }
 
         Integer parkingSlotNumber = findNearestSlot();
