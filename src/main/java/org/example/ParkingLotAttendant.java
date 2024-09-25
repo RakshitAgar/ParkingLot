@@ -12,7 +12,7 @@ public class ParkingLotAttendant {
     private ArrayList<ParkingLot> assignedParkingLots = new ArrayList<>();
     private static Set<Car> parkedCars = new HashSet<>();
 
-    public void assignParkingLot(ParkingLot parkingLot) throws ParkingLotAlreadyAssigned {
+    public void assign(ParkingLot parkingLot) throws ParkingLotAlreadyAssigned {
         if (assignedParkingLots.contains(parkingLot)) {
             throw new ParkingLotAlreadyAssigned("Parking lot already assigned ");
         }
@@ -32,7 +32,7 @@ public class ParkingLotAttendant {
         throw new ParkingSlotFilled("No available parking slots in assigned parking lots.");
     }
 
-    public Car unparkCar(Ticket ticket) throws Exception {
+    public Car unPark(Ticket ticket) throws Exception {
         for (ParkingLot parkingLot : assignedParkingLots) {
             Car unparkedCar = parkingLot.unPark(ticket);
                 parkedCars.remove(unparkedCar);

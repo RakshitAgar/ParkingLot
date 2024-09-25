@@ -3,6 +3,7 @@ package org.example;
 
 import org.example.Enums.CarColor;
 import org.example.Exceptions.CarAlreadyPresentException;
+import org.example.Exceptions.InvalidTicketException;
 
 import java.util.*;
 
@@ -10,8 +11,7 @@ public class ParkingLot {
     private final int lotSize;
     private boolean isFull;
     private final ParkingSlot[] parkingSlots;
-    private final Map<Car, Integer> parkedCars;
-    private final Map<Ticket, Car> tickets;
+    private final Map<Ticket,ParkingSlot> parkedSlotMap;
 
     public ParkingLot(int lotSize) throws Exception {
         if (lotSize < 1) {
@@ -19,8 +19,7 @@ public class ParkingLot {
         }
         this.lotSize = lotSize;
         this.parkingSlots = new ParkingSlot[lotSize];
-        this.parkedCars = new HashMap<>();
-        this.tickets = new HashMap<>();
+        this.parkedSlotMap = new HashMap<>();
         this.isFull = false;
         for (int i = 0; i < lotSize; i++) {
             parkingSlots[i] = new ParkingSlot(i + 1);
@@ -28,72 +27,59 @@ public class ParkingLot {
     }
 
     public Ticket park(Car car) throws Exception {
-        if (parkedCars.containsKey(car)) {
+        if (isCarAlreadyParked(car)) {
             throw new CarAlreadyPresentException("This car is already parked in the lot.");
         }
 
-        Integer parkingSlotNumber = findNearestSlot();
-        String ticketNumber = generateTicketNumber();
-        parkingSlots[parkingSlotNumber - 1].setSlotStatusOccupied();
-        parkedCars.put(car, parkingSlotNumber);
-        if (parkedCars.size() == lotSize) {
+        ParkingSlot availableSlot = findNearestAvailableSlot();
+        Ticket ticket = availableSlot.occupyWithCar(car);
+        parkedSlotMap.put(ticket, availableSlot);
+        if (parkedSlotMap.size() == lotSize) {
             this.isFull = true;
         }
-        Ticket newTicket = new Ticket(ticketNumber, parkingSlotNumber);
-        tickets.put(newTicket, car);
-        return newTicket;
+        return ticket;
+
     }
 
     public boolean isParkingLotFull() {
         return this.isFull;
     }
 
-    public Integer findNearestSlot() throws Exception {
-        if(!isParkingLotFull()){
-            for (int slotNumber = 0; slotNumber < lotSize; slotNumber++) {
-                if (parkingSlots[slotNumber].isSlotAvailable()) return slotNumber+1;
+    public ParkingSlot findNearestAvailableSlot() throws Exception {
+        for (ParkingSlot slot : parkingSlots) {
+            if (slot.isAvailable()) {
+                return slot;
             }
         }
         throw new Exception("Parking lot is full");
     }
 
     public int countCarsByColor(CarColor color) {
-        return (int) parkedCars.keySet().stream()
-                .filter(car -> car.isColor(color))
+        return (int) parkedSlotMap.values().stream()
+                .filter(slot -> slot.isCarOfColor(color))
                 .count();
     }
 
-    public Car carParkedWithRegistrationNumber(String registrationNumber) throws Exception {
-        return parkedCars.keySet().stream()
-                .filter(car -> car.hasRegistrationNumber(registrationNumber))
-                .findFirst()
-                .orElseThrow(() -> new Exception("Car with registration number not found"));
+    public boolean carParkedWithRegistrationNumber(String registrationNumber) {
+        return parkedSlotMap.values().stream()
+                .anyMatch(slot -> slot.hasCarWithRegistrationNumber(registrationNumber));
     }
 
 
-    public Car unPark(Ticket ticket) throws Exception {
-        Car car = tickets.get(ticket);
-        if (car == null) {
-            throw new Exception("Invalid ticket number.");
+
+    public Car unPark(Ticket ticket) throws InvalidTicketException {
+        ParkingSlot slot = parkedSlotMap.get(ticket);
+        if (slot == null) {
+            throw new InvalidTicketException("Invalid ticket number.");
         }
-
-        Integer parkingSlotNumber = parkedCars.get(car);
-        parkingSlots[parkingSlotNumber - 1].setSlotStatusEmpty();
-        parkedCars.remove(car);
-        tickets.remove(ticket);
-
-        if (parkedCars.size() < lotSize) {
-            isFull = false;
-        }
-
+        Car car = slot.vacate();
+        parkedSlotMap.remove(ticket);
         return car;
+
     }
 
-
-
-    private String generateTicketNumber() {
-        Random random = new Random();
-        int ticketNumber = 1000 + random.nextInt(9000);
-        return String.valueOf(ticketNumber);
+    private boolean isCarAlreadyParked(Car car) {
+        return parkedSlotMap.values().stream()
+                .anyMatch(slot -> slot.isOccupiedBy(car));
     }
 }

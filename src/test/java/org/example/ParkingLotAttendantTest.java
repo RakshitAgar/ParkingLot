@@ -2,6 +2,7 @@ package org.example;
 
 import org.example.Enums.CarColor;
 import org.example.Exceptions.CarAlreadyPresentException;
+import org.example.Exceptions.InvalidTicketException;
 import org.example.Exceptions.ParkingLotAlreadyAssigned;
 import org.example.Exceptions.ParkingSlotFilled;
 import org.junit.jupiter.api.Test;
@@ -11,13 +12,13 @@ import static org.junit.jupiter.api.Assertions.*;
 class ParkingLotAttendantTest {
 
     @Test
-    public void testParkingLotAttendantAssignParkingLot() throws Exception {
+    public void testParkingLotAttendantAssign() throws Exception {
         ParkingLot firstParkingLot = new ParkingLot(3);
         ParkingLot secondParkingLot = new ParkingLot(3);
         ParkingLotAttendant firstAttendant = new ParkingLotAttendant();
 
-        assertDoesNotThrow(() -> firstAttendant.assignParkingLot(firstParkingLot));
-        assertDoesNotThrow(() -> firstAttendant.assignParkingLot(secondParkingLot));
+        assertDoesNotThrow(() -> firstAttendant.assign(firstParkingLot));
+        assertDoesNotThrow(() -> firstAttendant.assign(secondParkingLot));
     }
 
     @Test
@@ -25,8 +26,8 @@ class ParkingLotAttendantTest {
         ParkingLot firstParkingLot = new ParkingLot(3);
         ParkingLotAttendant firstAttendant = new ParkingLotAttendant();
 
-        assertDoesNotThrow(() -> firstAttendant.assignParkingLot(firstParkingLot));
-        assertThrows(ParkingLotAlreadyAssigned.class, () -> firstAttendant.assignParkingLot(firstParkingLot));
+        assertDoesNotThrow(() -> firstAttendant.assign(firstParkingLot));
+        assertThrows(ParkingLotAlreadyAssigned.class, () -> firstAttendant.assign(firstParkingLot));
     }
 
     @Test
@@ -34,7 +35,7 @@ class ParkingLotAttendantTest {
         ParkingLot firstParkingLot = new ParkingLot(3);
         Car carToBeParked = new Car("UP-81" , CarColor.RED);
         ParkingLotAttendant firstAttendant = new ParkingLotAttendant();
-        firstAttendant.assignParkingLot(firstParkingLot);
+        firstAttendant.assign(firstParkingLot);
         assertDoesNotThrow(() -> firstAttendant.park(carToBeParked));
     }
 
@@ -44,7 +45,7 @@ class ParkingLotAttendantTest {
         Car firstCar = new Car("UP-81"  , CarColor.RED);
         Car secondCar = new Car("UP-82"  , CarColor.RED);
         ParkingLotAttendant firstAttendant = new ParkingLotAttendant();
-        firstAttendant.assignParkingLot(firstParkingLot);
+        firstAttendant.assign(firstParkingLot);
         firstAttendant.park(firstCar);
         assertThrows(ParkingSlotFilled.class , ()->{firstAttendant.park(secondCar);});
     }
@@ -54,10 +55,10 @@ class ParkingLotAttendantTest {
         ParkingLot firstParkingLot = new ParkingLot(3);
         Car carToBeParked = new Car("UP-81" , CarColor.RED);
         ParkingLotAttendant firstAttendant = new ParkingLotAttendant();
-        firstAttendant.assignParkingLot(firstParkingLot);
+        firstAttendant.assign(firstParkingLot);
 
         Ticket parkedCarTicket = firstAttendant.park(carToBeParked);
-        Car actual = firstAttendant.unparkCar(parkedCarTicket);
+        Car actual = firstAttendant.unPark(parkedCarTicket);
         assertEquals(carToBeParked, actual);
     }
 
@@ -65,11 +66,11 @@ class ParkingLotAttendantTest {
     public void testParkingLotAttendantToUnParkTheNotParkedCar() throws Exception {
         ParkingLot firstParkingLot = new ParkingLot(3);
         ParkingLotAttendant firstAttendant = new ParkingLotAttendant();
-        firstAttendant.assignParkingLot(firstParkingLot);
+        firstAttendant.assign(firstParkingLot);
 
         Ticket randomTicket = new Ticket("AB-12" , 5);
 
-        assertThrows(Exception.class , ()->{firstAttendant.unparkCar(randomTicket);});
+        assertThrows(InvalidTicketException.class , ()->{firstAttendant.unPark(randomTicket);});
     }
 
 
@@ -82,12 +83,33 @@ class ParkingLotAttendantTest {
         Car secondCar = new Car("UP-82"  , CarColor.RED);
         ParkingLotAttendant firstAttendant = new ParkingLotAttendant();
 
-        firstAttendant.assignParkingLot(firstParkingLot);
-        firstAttendant.assignParkingLot(secondParkingLot);
+        firstAttendant.assign(firstParkingLot);
+        firstAttendant.assign(secondParkingLot);
         firstAttendant.park(firstCar);
         firstAttendant.park(secondCar);
 
         assertThrows(CarAlreadyPresentException.class, ()->{firstAttendant.park(firstCar);});
+    }
+
+    @Test
+    public void testUnParkCarInDifferentSlot() throws Exception {
+        ParkingLot firstParkingLot = new ParkingLot(2);
+        ParkingLot secondParkingLot = new ParkingLot(2);
+
+        Car firstCar = new Car("UP81"  , CarColor.RED);
+        Car secondCar = new Car("UP82"  , CarColor.RED);
+        Car thirdCar = new Car("UP83"  , CarColor.RED);
+        ParkingLotAttendant firstAttendant = new ParkingLotAttendant();
+
+        firstAttendant.assign(firstParkingLot);
+        firstAttendant.assign(secondParkingLot);
+        firstAttendant.park(firstCar);
+        firstAttendant.park(secondCar);
+        Ticket ticket = firstAttendant.park(thirdCar);
+
+        Car expectedCar = firstAttendant.unPark(ticket);
+        assertEquals(thirdCar, expectedCar);
+
     }
 
     @Test
@@ -100,9 +122,9 @@ class ParkingLotAttendantTest {
         ParkingLotAttendant firstAttendant = new ParkingLotAttendant();
         ParkingLotAttendant secondAttendant = new ParkingLotAttendant();
 
-        secondAttendant.assignParkingLot(thirdParkingLot);
-        firstAttendant.assignParkingLot(firstParkingLot);
-        firstAttendant.assignParkingLot(secondParkingLot);
+        secondAttendant.assign(thirdParkingLot);
+        firstAttendant.assign(firstParkingLot);
+        firstAttendant.assign(secondParkingLot);
         firstAttendant.park(firstCar);
         firstAttendant.park(secondCar);
 
