@@ -21,6 +21,7 @@ class ParkingLotAttendantTest {
         assertDoesNotThrow(() -> firstAttendant.assign(secondParkingLot));
     }
 
+
     @Test
     public void testParkingLotAttendantToAssignSameParkingLotTwice() throws Exception {
         ParkingLot firstParkingLot = new ParkingLot(3);
