@@ -2,6 +2,8 @@ package org.example;
 
 import org.example.Enums.CarColor;
 import org.example.Exceptions.CarAlreadyPresentException;
+import org.example.Exceptions.CarNotFoundException;
+import org.example.Exceptions.ParkingSlotFilled;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -31,42 +33,46 @@ class ParkingLotTest {
     public void testParkingLotParkedCarTwice() throws Exception {
         ParkingLot parkingLot = new ParkingLot(2);
         Car firstCar = new Car("AB12" , CarColor.YELLOW);
+        Car secondCar = new Car("AB12" , CarColor.YELLOW);
 
         parkingLot.park(firstCar);
         assertThrows(CarAlreadyPresentException.class, () -> {parkingLot.park(firstCar);});
 
-        assertFalse(parkingLot.isParkingLotFull());
+        assertDoesNotThrow(() -> {parkingLot.park(secondCar);});
     }
 
     @Test
     public void testParkingLotFullTrue() throws Exception {
         ParkingLot parkingLot = new ParkingLot(2);
         Car firstCar = new Car("AB12" , CarColor.RED);
-        Car secondCar = new Car("AB12" , CarColor.YELLOW);
+        Car secondCar = new Car("AB13" , CarColor.YELLOW);
+        Car thirdCar = new Car("AB14" , CarColor.RED);
         
         parkingLot.park(firstCar);
         parkingLot.park(secondCar);
-        assertTrue(parkingLot.isParkingLotFull());
+        assertThrows(ParkingSlotFilled.class, () -> {parkingLot.park(thirdCar);});
     }
 
     @Test
     public void testParkingLotPark1Car() throws Exception {
         ParkingLot parkingLot = new ParkingLot(1);
-        assertFalse(parkingLot.isParkingLotFull());
-        Car carToBeParked = new Car("AB12" , CarColor.RED);
-        parkingLot.park(carToBeParked);
-        assertTrue(parkingLot.isParkingLotFull());
+        Car firstCar = new Car("AB12" , CarColor.RED);
+        Car secondCar = new Car("AB13" , CarColor.YELLOW);
+        assertDoesNotThrow(() -> {parkingLot.park(firstCar);});
+
+        assertThrows(ParkingSlotFilled.class, () -> {parkingLot.park(secondCar);});
     }
 
     @Test
     public void testParkingLotParkingMoreThanOneCar() throws Exception {
         ParkingLot parkingLot = new ParkingLot(3);
         Car firstCar = new Car("AB12" , CarColor.RED);
-        Car secondCar = new Car("AB12" , CarColor.RED);
+        Car secondCar = new Car("AB15" , CarColor.RED);
+        Car thirdCar = new Car("AB13" , CarColor.RED);
         parkingLot.park(firstCar);
         parkingLot.park(secondCar);
 
-        assertFalse(parkingLot.isParkingLotFull());
+        assertDoesNotThrow(() -> {parkingLot.park(thirdCar);});
 
     }
 
@@ -112,10 +118,23 @@ class ParkingLotTest {
         ParkingLot parkingLot = new ParkingLot(5);
         Car firstCar = new Car("AB12" , CarColor.RED);
         Car secondCar = new Car("AB13" , CarColor.YELLOW);
+
         parkingLot.park(firstCar);
         parkingLot.park(secondCar);
 
-        assertTrue(parkingLot.carParkedWithRegistrationNumber("AB12"));
+        Car actualCar = parkingLot.carParkedWithRegistrationNumber("AB12");
+        assertEquals(actualCar, firstCar);
+    }
+
+    @Test
+    public void testFindCarByRegistrationNumberForCarNotPresent() throws Exception {
+        ParkingLot parkingLot = new ParkingLot(5);
+        Car firstCar = new Car("AB12" , CarColor.RED);
+        Car secondCar = new Car("AB13" , CarColor.YELLOW);
+
+        parkingLot.park(firstCar);
+
+        assertThrows(CarNotFoundException.class, () -> {parkingLot.carParkedWithRegistrationNumber("AB13");});
     }
 
     //Mocking Test
@@ -138,7 +157,6 @@ class ParkingLotTest {
 
     //Spying Test
 
-
     @Test
     public void testParkingLotParkVerifyApiCall() throws Exception {
         //spying
@@ -151,27 +169,57 @@ class ParkingLotTest {
     }
 
 
-
-
     @Test
     public void testParkingLotUnParkCar() throws Exception {
         ParkingLot parkingLot = new ParkingLot(3);
         Car carToBeUnParked = new Car("AB12" , CarColor.RED);
         Ticket parkedTicket = parkingLot.park(carToBeUnParked);
+
         Car actualCar = parkingLot.unPark(parkedTicket);
+
         assertEquals(carToBeUnParked, actualCar);
     }
 
     @Test
-    public void testParkingLotUnParkWithWrongTicket() throws Exception {
+    public void testParkingLotUnParkingCarThatIsNotParked() throws Exception {
         ParkingLot parkingLot = new ParkingLot(3);
         Car firstCar = new Car("AB12" , CarColor.RED);
+
         Ticket parkedTicket = parkingLot.park(firstCar);
         parkingLot.unPark(parkedTicket);
-        Ticket wrongTicket = new Ticket("AA",2);
+        Ticket wrongTicket = new Ticket();
+
         assertThrows(Exception.class, () -> parkingLot.unPark(wrongTicket));
 
     }
+
+    @Test
+    public void testParkingLotUnParkCarWithWrongTicket() throws Exception {
+        ParkingLot firstParkingLot = new ParkingLot(3);
+        ParkingLot secondParkingLot = new ParkingLot(3);
+        Car firstCar = new Car("AB12" , CarColor.RED);
+        Car secondCar = new Car("AB13" , CarColor.RED);
+
+        Ticket ticketFromFirstParkingLot = firstParkingLot.park(firstCar);
+        Ticket ticketFromSecondParkingLot = secondParkingLot.park(secondCar);
+
+        assertThrows(Exception.class, () -> firstParkingLot.unPark(ticketFromSecondParkingLot));
+    }
+
+    @Test
+    public void testParkingLotIsFullAfterUnParkingCar() throws Exception {
+        ParkingLot firstParkingLot = new ParkingLot(1);
+        Car firstCar = new Car("AB12" , CarColor.RED);
+        Car secondCar = new Car("AB13" , CarColor.RED);
+        Ticket ticket = firstParkingLot.park(firstCar);
+
+        assertThrows(ParkingSlotFilled.class, () -> firstParkingLot.park(secondCar));
+
+        firstParkingLot.unPark(ticket);
+
+        assertDoesNotThrow(() -> firstParkingLot.park(secondCar));
+    }
+
 
 
 

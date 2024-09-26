@@ -3,13 +3,14 @@ package org.example;
 
 import org.example.Enums.CarColor;
 import org.example.Exceptions.CarAlreadyPresentException;
+import org.example.Exceptions.CarNotFoundException;
 import org.example.Exceptions.InvalidTicketException;
+import org.example.Exceptions.ParkingSlotFilled;
 
 import java.util.*;
 
 public class ParkingLot {
     private final int lotSize;
-    private boolean isFull;
     private final ParkingSlot[] parkingSlots;
     private final Map<Ticket,ParkingSlot> parkedSlotMap;
 
@@ -20,9 +21,8 @@ public class ParkingLot {
         this.lotSize = lotSize;
         this.parkingSlots = new ParkingSlot[lotSize];
         this.parkedSlotMap = new HashMap<>();
-        this.isFull = false;
         for (int i = 0; i < lotSize; i++) {
-            parkingSlots[i] = new ParkingSlot(i + 1);
+            parkingSlots[i] = new ParkingSlot();
         }
     }
 
@@ -34,24 +34,17 @@ public class ParkingLot {
         ParkingSlot availableSlot = findNearestAvailableSlot();
         Ticket ticket = availableSlot.occupyWithCar(car);
         parkedSlotMap.put(ticket, availableSlot);
-        if (parkedSlotMap.size() == lotSize) {
-            this.isFull = true;
-        }
         return ticket;
 
     }
 
-    public boolean isParkingLotFull() {
-        return this.isFull;
-    }
-
-    public ParkingSlot findNearestAvailableSlot() throws Exception {
+    public ParkingSlot findNearestAvailableSlot() throws ParkingSlotFilled {
         for (ParkingSlot slot : parkingSlots) {
             if (slot.isAvailable()) {
                 return slot;
             }
         }
-        throw new Exception("Parking lot is full");
+        throw new ParkingSlotFilled("Parking lot is full");
     }
 
     public int countCarsByColor(CarColor color) {
@@ -60,12 +53,16 @@ public class ParkingLot {
                 .count();
     }
 
-    public boolean carParkedWithRegistrationNumber(String registrationNumber) {
-        return parkedSlotMap.values().stream()
-                .anyMatch(slot -> slot.hasCarWithRegistrationNumber(registrationNumber));
+    public Car carParkedWithRegistrationNumber(String registrationNumber) throws CarNotFoundException {
+        for (ParkingSlot slot : parkedSlotMap.values()) {
+            try {
+                return slot.getCarByRegistrationNumber(registrationNumber);
+            } catch (CarNotFoundException e) {
+                // Continue searching in the next slot
+            }
+        }
+        throw new CarNotFoundException("Car with given registration number not found");
     }
-
-
 
     public Car unPark(Ticket ticket) throws InvalidTicketException {
         ParkingSlot slot = parkedSlotMap.get(ticket);
@@ -76,6 +73,16 @@ public class ParkingLot {
         parkedSlotMap.remove(ticket);
         return car;
 
+    }
+
+    public boolean isParkingLotFull() {
+        try {
+            findNearestAvailableSlot();
+            return false;
+        }
+        catch (ParkingSlotFilled e) {
+            return true;
+        }
     }
 
     private boolean isCarAlreadyParked(Car car) {

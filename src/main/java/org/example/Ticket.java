@@ -1,12 +1,16 @@
 package org.example;
 
+import java.util.UUID;
+
 public class Ticket {
     private final String ticketNumber;
-    private final Integer slotNumber;
 
-    public Ticket(String ticketNumber, Integer slotNumber) {
-        this.ticketNumber = ticketNumber;
-        this.slotNumber = slotNumber;
+    public Ticket() {
+        this.ticketNumber = generateTicketNumber();
+    }
+
+    private String generateTicketNumber() {
+        return UUID.randomUUID().toString();
     }
 
 }
