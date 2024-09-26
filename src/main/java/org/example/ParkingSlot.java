@@ -6,8 +6,6 @@ import org.example.Exceptions.CarNotFoundException;
 import org.example.Exceptions.ParkingSlotEmptyException;
 import org.example.Exceptions.ParkingSlotFilled;
 
-import java.util.Random;
-
 public class ParkingSlot {
     private SlotStatus slotStatus;
     private Car parkedCar;
