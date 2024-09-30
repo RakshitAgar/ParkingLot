@@ -85,6 +85,10 @@ public class ParkingLot {
         }
     }
 
+    public int availableSlots() {
+        return parkedSlotMap.size();
+    }
+
     private boolean isCarAlreadyParked(Car car) {
         return parkedSlotMap.values().stream()
                 .anyMatch(slot -> slot.isOccupiedBy(car));

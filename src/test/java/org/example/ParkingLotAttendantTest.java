@@ -183,4 +183,51 @@ class ParkingLotAttendantTest {
 
         assertEquals(actualCar, firstAttendant.unPark(reParkedCarTicket));
     }
+
+    @Test
+    public void testAssigningSameParkingLotToDifferentAttendant() throws Exception {
+        ParkingLot firstParkingLot = new ParkingLot(4);
+        ParkingLotAttendant firstAttendant = new ParkingLotAttendant();
+        ParkingLotAttendant secondAttendant = new ParkingLotAttendant();
+
+        firstAttendant.assign(firstParkingLot);
+        assertDoesNotThrow(() -> {
+            secondAttendant.assign(firstParkingLot);
+        });
+
+    }
+
+    @Test
+    public void testParkingCarInSameParkingLotByDifferentAttendant() throws Exception {
+        ParkingLot firstParkingLot = new ParkingLot(2);
+        Car firstCar = new Car("UP81", CarColor.RED);
+        Car secondCar = new Car("UP82", CarColor.RED);
+        ParkingLotAttendant firstAttendant = new ParkingLotAttendant();
+        ParkingLotAttendant secondAttendant = new ParkingLotAttendant();
+        firstAttendant.assign(firstParkingLot);
+        secondAttendant.assign(firstParkingLot);
+
+        firstAttendant.park(firstCar);
+        secondAttendant.park(secondCar);
+
+        //Getting Parking Lot as full
+        assertTrue(firstParkingLot.isParkingLotFull());
+    }
+
+    @Test
+    public void testParkingLotAttendantParkingParkAccordingDistributedSystem() throws Exception {
+        ParkingLot firstParkingLot = new ParkingLot(2);
+        ParkingLot secondParkingLot = new ParkingLot(1);
+        Car firstCar = new Car("UP81", CarColor.RED);
+        Car secondCar = new Car("UP82", CarColor.RED);
+        ParkingLotAttendant firstAttendant = new ParkingLotAttendant();
+        firstAttendant.assign(firstParkingLot);
+        firstAttendant.assign(secondParkingLot);
+
+        firstAttendant.park(firstCar);
+        firstAttendant.park(secondCar);
+
+        assertTrue(secondParkingLot.isParkingLotFull());
+    }
+
 }

@@ -11,6 +11,7 @@ public class ParkingLotAttendant {
     private ArrayList<ParkingLot> assignedParkingLots = new ArrayList<>();
     private ArrayList<Car> parkedCars = new ArrayList<>();
 
+
     public void assign(ParkingLot parkingLot) throws ParkingLotAlreadyAssigned {
         if (assignedParkingLots.contains(parkingLot)) {
             throw new ParkingLotAlreadyAssigned("Parking lot already assigned ");
@@ -22,13 +23,20 @@ public class ParkingLotAttendant {
         if (parkedCars.contains(carToBeParked)) {
             throw new CarAlreadyPresentException("Car already assigned to this parking lot");
         }
-        for (ParkingLot parkingLot : assignedParkingLots) {
-            if (!parkingLot.isParkingLotFull()) {
-                parkedCars.add(carToBeParked);
-                return parkingLot.park(carToBeParked);
+
+        ParkingLot selectedParkingLot = null;
+        int lowestOccupancy = Integer.MAX_VALUE;
+        for (ParkingLot lot : assignedParkingLots) {
+            if (!lot.isParkingLotFull() && lot.availableSlots() < lowestOccupancy) {
+                selectedParkingLot = lot;
+                lowestOccupancy = lot.availableSlots();
             }
         }
-        throw new ParkingSlotFilled("No available parking slots in assigned parking lots.");
+        if(selectedParkingLot == null) {
+            throw new ParkingSlotFilled("No available parking slots in assigned parking lots.");
+        }
+        parkedCars.add(carToBeParked);
+        return selectedParkingLot.park(carToBeParked);
     }
 
     public Car unPark(Ticket ticket) throws InvalidTicketException {
