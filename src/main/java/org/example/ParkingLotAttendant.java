@@ -1,9 +1,6 @@
 package org.example;
 
-import org.example.Exceptions.CarAlreadyPresentException;
-import org.example.Exceptions.InvalidTicketException;
-import org.example.Exceptions.ParkingLotAlreadyAssigned;
-import org.example.Exceptions.ParkingSlotFilled;
+import org.example.Exceptions.*;
 
 import java.util.ArrayList;
 
@@ -23,17 +20,22 @@ public class ParkingLotAttendant {
         if (parkedCars.contains(carToBeParked)) {
             throw new CarAlreadyPresentException("Car already assigned to this parking lot");
         }
+        if (assignedParkingLots.isEmpty()) {
+            throw new NoParkingLotAssignedException("Parking lot not assigned ");
+        }
 
         ParkingLot selectedParkingLot = null;
         int lowestOccupancy = Integer.MAX_VALUE;
         for (ParkingLot lot : assignedParkingLots) {
-            if (!lot.isParkingLotFull() && lot.availableSlots() < lowestOccupancy) {
+            int lotSize = lot.availableSlots();
+            if (!lot.isParkingLotFull() && lotSize < lowestOccupancy) {
                 selectedParkingLot = lot;
-                lowestOccupancy = lot.availableSlots();
+                lowestOccupancy = lotSize;
             }
         }
-        if(selectedParkingLot == null) {
-            throw new ParkingSlotFilled("No available parking slots in assigned parking lots.");
+        if (selectedParkingLot == null) {
+
+            throw new ParkingSlotFilled("All assigned ParkingLot are filled");
         }
         parkedCars.add(carToBeParked);
         return selectedParkingLot.park(carToBeParked);

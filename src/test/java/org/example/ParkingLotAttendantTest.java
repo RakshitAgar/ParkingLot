@@ -91,7 +91,9 @@ class ParkingLotAttendantTest {
         firstAttendant.assign(firstParkingLot);
         firstAttendant.park(carToBeParked);
 
-        assertThrows(CarAlreadyPresentException.class, () -> {firstAttendant.park(carToBeParked);});
+        assertThrows(CarAlreadyPresentException.class, () -> {
+            firstAttendant.park(carToBeParked);
+        });
     }
 
 
