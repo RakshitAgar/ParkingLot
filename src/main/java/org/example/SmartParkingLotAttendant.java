@@ -4,7 +4,7 @@ import org.example.Exceptions.*;
 
 import java.util.ArrayList;
 
-public class ParkingLotAttendant implements Attendant {
+public class SmartParkingLotAttendant implements Attendant {
     private ArrayList<ParkingLot> assignedParkingLots = new ArrayList<>();
     private ArrayList<Car> parkedCars = new ArrayList<>();
 
@@ -18,19 +18,27 @@ public class ParkingLotAttendant implements Attendant {
         validateIsCarParked(parkedCars, carToBeParked);
         validateIsParkingLotAssigned(assignedParkingLots);
 
-        for (ParkingLot parkingLot : assignedParkingLots) {
-            if (!parkingLot.isParkingLotFull()) {
-                parkedCars.add(carToBeParked);
-                return parkingLot.park(carToBeParked);
+        ParkingLot selectedParkingLot = null;
+        int lowestOccupancy = Integer.MAX_VALUE;
+
+        for (ParkingLot lot : assignedParkingLots) {
+            int lotSize = lot.availableSlots();
+            if (!lot.isParkingLotFull() && lotSize < lowestOccupancy) {
+                selectedParkingLot = lot;
+                lowestOccupancy = lotSize;
             }
         }
 
-        throw new ParkingSlotFilled("All assigned parking lots are full.");
+        if (selectedParkingLot == null) {
+            throw new ParkingSlotFilled("All assigned parking lots are full.");
+        }
+
+        parkedCars.add(carToBeParked);
+        return selectedParkingLot.park(carToBeParked);
     }
 
     @Override
     public Car unPark(Ticket ticket) throws InvalidTicketException {
         return unParkCar(ticket, assignedParkingLots, parkedCars);
     }
-
 }

@@ -1,33 +1,27 @@
 package org.example;
 
-import org.example.Exceptions.ParkingLotAlreadyAssigned;
+import org.example.Exceptions.notOwnedParkingLotException;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class ParkingLotOwner extends ParkingLotAttendant{
-    private List<ParkingLot> parkingLots;
-    private Map<ParkingLot, Boolean> parkingLotStatusMap;
+    private List<ParkingLot> ownedParkingLot;
 
     public ParkingLotOwner() {
-        this.parkingLots = new ArrayList<>();
-        this.parkingLotStatusMap = new HashMap<>();
+        this.ownedParkingLot = new ArrayList<>();
     }
 
     public ParkingLot createParkingLot(int size) throws Exception {
         ParkingLot parkingLot = new ParkingLot(size);
-        parkingLotStatusMap.put(parkingLot, false);
-        this.parkingLots.add(parkingLot);
+        this.ownedParkingLot.add(parkingLot);
         return parkingLot;
     }
 
-    public void updateParkingLotStatus(ParkingLot parkingLot, boolean isFull) {
-        this.parkingLotStatusMap.put(parkingLot, isFull);
-    }
-
-    public void assignParkingLotToSelf(ParkingLot parkingLot) throws ParkingLotAlreadyAssigned {
+    public void assignParkingLot(ParkingLot parkingLot) {
+        if(!ownedParkingLot.contains(parkingLot)) {
+            throw new notOwnedParkingLotException("This ParkingLot is Not Owned by this Owner");
+        }
         super.assign(parkingLot);
     }
 }

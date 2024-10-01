@@ -217,19 +217,22 @@ class ParkingLotAttendantTest {
     }
 
     @Test
-    public void testParkingLotAttendantParkingParkAccordingDistributedSystem() throws Exception {
+    public void testParkingLotAttendantParkingParkAccordingDistributedWay() throws Exception {
         ParkingLot firstParkingLot = new ParkingLot(2);
         ParkingLot secondParkingLot = new ParkingLot(1);
         Car firstCar = new Car("UP81", CarColor.RED);
         Car secondCar = new Car("UP82", CarColor.RED);
+        Car thirdCar = new Car("UP83", CarColor.RED);
         ParkingLotAttendant firstAttendant = new ParkingLotAttendant();
         firstAttendant.assign(firstParkingLot);
         firstAttendant.assign(secondParkingLot);
 
         firstAttendant.park(firstCar);
         firstAttendant.park(secondCar);
+        firstAttendant.park(thirdCar);
 
         assertTrue(secondParkingLot.isParkingLotFull());
+        assertTrue(firstParkingLot.isParkingLotFull());
     }
 
 }

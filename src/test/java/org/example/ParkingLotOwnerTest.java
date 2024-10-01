@@ -7,12 +7,11 @@ import org.example.Exceptions.ParkingSlotFilled;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 class ParkingLotOwnerTest {
 
     @Test
-    public void testParkingLotOwnerAssignParkingLot() throws Exception {
+    public void testParkingLotOwnerAssignParkingLotParkingLot() throws Exception {
         ParkingLotOwner owner = new ParkingLotOwner();
         assertDoesNotThrow(() -> {
             owner.createParkingLot(2);
@@ -28,15 +27,13 @@ class ParkingLotOwnerTest {
     }
 
     @Test
-    public void testOwnerAssignParkingLotToItself() throws Exception {
+    public void testOwnerAssignParkingLotParkingLotToItself() throws Exception {
         ParkingLotOwner owner = new ParkingLotOwner();
         ParkingLot firstParkingLot = owner.createParkingLot(2);
         ParkingLot secondParkingLot = owner.createParkingLot(3);
-        ParkingLotAttendant attendant = new ParkingLotAttendant();
-
-        attendant.assign(secondParkingLot);
+        owner.assignParkingLot(secondParkingLot);
         assertDoesNotThrow(() -> {
-            owner.assignParkingLotToSelf(firstParkingLot);
+            owner.assignParkingLot(firstParkingLot);
         });
     }
 
@@ -57,7 +54,7 @@ class ParkingLotOwnerTest {
         ParkingLot firstParkingLot = owner.createParkingLot(2);
         Car firstCar = new Car("UP81", CarColor.BLUE);
 
-        owner.assignParkingLotToSelf(firstParkingLot);
+        owner.assignParkingLot(firstParkingLot);
         assertDoesNotThrow(() -> {
             owner.park(firstCar);
         });
@@ -68,7 +65,7 @@ class ParkingLotOwnerTest {
         ParkingLotOwner owner = new ParkingLotOwner();
         ParkingLot firstParkingLot = owner.createParkingLot(2);
         Car firstCar = new Car("UP81", CarColor.BLUE);
-        owner.assignParkingLotToSelf(firstParkingLot);
+        owner.assignParkingLot(firstParkingLot);
 
         Ticket ticket = owner.park(firstCar);
         Car actualCar = owner.unPark(ticket);
@@ -84,7 +81,7 @@ class ParkingLotOwnerTest {
         Car firstCar = new Car("UP81", CarColor.BLUE);
         ParkingLotAttendant attendant = new ParkingLotAttendant();
         attendant.assign(secondParkingLot);
-        owner.assignParkingLotToSelf(firstParkingLot);
+        owner.assignParkingLot(firstParkingLot);
 
         Ticket ticket = attendant.park(firstCar);
 
@@ -99,29 +96,13 @@ class ParkingLotOwnerTest {
         ParkingLot firstParkingLot = owner.createParkingLot(1);
         Car firstCar = new Car("UP81", CarColor.BLUE);
         Car secondCar = new Car("UP82", CarColor.BLUE);
-        owner.assignParkingLotToSelf(firstParkingLot);
+        owner.assignParkingLot(firstParkingLot);
 
         owner.park(firstCar);
 
         assertThrows(ParkingSlotFilled.class, () -> {
             owner.park(secondCar);
         });
-    }
-
-    @Test
-    public void testParkingLotOwnerCheckStatus() throws Exception {
-        ParkingLotOwner owner = spy(new ParkingLotOwner());
-        ParkingLot firstParkingLot = spy(owner.createParkingLot(2));
-        Car firstCar = new Car("UP81", CarColor.BLUE);
-        Car secondCar = new Car("UP82", CarColor.BLUE);
-        owner.assignParkingLotToSelf(firstParkingLot);
-        firstParkingLot.park(firstCar);
-
-        firstParkingLot.park(secondCar);
-
-        verify(owner, times(1)).updateParkingLotStatus(firstParkingLot, true);
-
-        verify(owner, never()).updateParkingLotStatus(firstParkingLot, false);
     }
 
 

@@ -14,7 +14,7 @@ public class ParkingLot {
     private final int lotSize;
     private final ParkingSlot[] parkingSlots;
     private final Map<Ticket,ParkingSlot> parkedSlotMap;
-    private ParkingLotOwner owner;
+    private ParkingLotOwner observer;
 
     public ParkingLot(int lotSize) throws Exception {
         if (lotSize < 1) {
@@ -29,8 +29,8 @@ public class ParkingLot {
         }
     }
 
-    public void setOwner(ParkingLotOwner owner) {
-        this.owner = owner;
+    public void setObserver(ParkingLotOwner observer) {
+        this.observer = observer;
     }
 
     public Ticket park(Car car) throws Exception {
@@ -45,9 +45,9 @@ public class ParkingLot {
         //Updating the Parking Lot Status
         if(parkedSlotMap.size() == lotSize) {
             isFull = true;
-            if (owner != null) {
-                owner.updateParkingLotStatus(this,true);
-            }
+//            if (observer != null) {
+//                observer.updateParkingLotStatus(this,true);
+//            }
         }
         return ticket;
 
@@ -87,9 +87,9 @@ public class ParkingLot {
         Car car = slot.vacate();
         if(isParkingLotFull()){
             isFull = false;
-            if (owner != null) {
-                owner.updateParkingLotStatus(this,false);
-            }
+//            if (observer != null) {
+//                observer.updateParkingLotStatus(this,false);
+//            }
         }
         parkedSlotMap.remove(ticket);
         return car;
