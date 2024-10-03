@@ -3,6 +3,7 @@ package org.example;
 import org.example.Enums.CarColor;
 import org.example.Exceptions.CarAlreadyPresentException;
 import org.example.Exceptions.CarNotFoundException;
+import org.example.Exceptions.NoOwnerAssignedException;
 import org.example.Exceptions.ParkingSlotFilled;
 import org.junit.jupiter.api.Test;
 
@@ -12,26 +13,37 @@ import static org.mockito.Mockito.*;
 class ParkingLotTest {
 
     @Test
+    public void testParkingLotCreationWithoutTheOwner() {
+        assertThrows(NoOwnerAssignedException.class, () -> {
+            new ParkingLot(3,null);
+        });
+    }
+
+    @Test
     public void testParkingLotException() {
-        assertThrows(Exception.class, () -> {new ParkingLot(0);});
+        ParkingLotOwner owner = new ParkingLotOwner();
+        assertThrows(Exception.class, () -> {new ParkingLot(0,owner);});
     }
 
     @Test
     public void testParkingLotWith5Slots() throws Exception {
-        ParkingLot parkingLot = new ParkingLot(5);
+        ParkingLotOwner owner = new ParkingLotOwner();
+        ParkingLot parkingLot = new ParkingLot(5,owner);
         assertNotNull(parkingLot);
     }
 
     @Test
     public void testParkingLotParkCar() throws Exception {
-        ParkingLot parkingLot = new ParkingLot(2);
+        ParkingLotOwner owner = new ParkingLotOwner();
+        ParkingLot parkingLot = new ParkingLot(2,owner);
         Car carToBeParked = new Car("AB12" , CarColor.YELLOW);
         assertDoesNotThrow(() -> {parkingLot.park(carToBeParked);});
     }
 
     @Test
     public void testParkingLotParkedCarTwice() throws Exception {
-        ParkingLot parkingLot = new ParkingLot(2);
+        ParkingLotOwner owner = new ParkingLotOwner();
+        ParkingLot parkingLot = new ParkingLot(2,owner);
         Car firstCar = new Car("AB12" , CarColor.YELLOW);
         Car secondCar = new Car("AB12" , CarColor.YELLOW);
 
@@ -43,7 +55,8 @@ class ParkingLotTest {
 
     @Test
     public void testParkingLotFullTrue() throws Exception {
-        ParkingLot parkingLot = new ParkingLot(2);
+        ParkingLotOwner owner = new ParkingLotOwner();
+        ParkingLot parkingLot = new ParkingLot(2,owner);
         Car firstCar = new Car("AB12" , CarColor.RED);
         Car secondCar = new Car("AB13" , CarColor.YELLOW);
         Car thirdCar = new Car("AB14" , CarColor.RED);
@@ -55,7 +68,8 @@ class ParkingLotTest {
 
     @Test
     public void testParkingLotPark1Car() throws Exception {
-        ParkingLot parkingLot = new ParkingLot(1);
+        ParkingLotOwner owner = new ParkingLotOwner();
+        ParkingLot parkingLot = new ParkingLot(1,owner);
         Car firstCar = new Car("AB12" , CarColor.RED);
         Car secondCar = new Car("AB13" , CarColor.YELLOW);
         assertDoesNotThrow(() -> {parkingLot.park(firstCar);});
@@ -65,7 +79,8 @@ class ParkingLotTest {
 
     @Test
     public void testParkingLotParkingMoreThanOneCar() throws Exception {
-        ParkingLot parkingLot = new ParkingLot(3);
+        ParkingLotOwner owner = new ParkingLotOwner();
+        ParkingLot parkingLot = new ParkingLot(3,owner);
         Car firstCar = new Car("AB12" , CarColor.RED);
         Car secondCar = new Car("AB15" , CarColor.RED);
         Car thirdCar = new Car("AB13" , CarColor.RED);
@@ -78,7 +93,8 @@ class ParkingLotTest {
 
     @Test
     public void testParkingLotExceptionParkWithFilledSlots() throws Exception {
-        ParkingLot parkingLot = new ParkingLot(1);
+        ParkingLotOwner owner = new ParkingLotOwner();
+        ParkingLot parkingLot = new ParkingLot(1,owner);
         Car firstCar = new Car("AB12" , CarColor.RED);
         parkingLot.park(firstCar);
         Car secondCar = new Car("AB12" , CarColor.YELLOW);
@@ -87,7 +103,8 @@ class ParkingLotTest {
 
     @Test
     public void testFindCarByColorRedCorrect() throws Exception {
-        ParkingLot parkingLot = new ParkingLot(5);
+        ParkingLotOwner owner = new ParkingLotOwner();
+        ParkingLot parkingLot = new ParkingLot(5,owner);
         Car firstCar = new Car("AB12" , CarColor.RED);
         Car secondCar = new Car("AB12" , CarColor.RED);
         Car thirdCar = new Car("AB12" , CarColor.BLUE);
@@ -101,7 +118,8 @@ class ParkingLotTest {
 
     @Test
     public void testFindCarByColorYellowCorrect() throws Exception {
-        ParkingLot parkingLot = new ParkingLot(5);
+        ParkingLotOwner owner = new ParkingLotOwner();
+        ParkingLot parkingLot = new ParkingLot(5,owner);
         Car firstCar = new Car("AB12" , CarColor.YELLOW);
         Car secondCar = new Car("AB12" , CarColor.YELLOW);
         Car thirdCar = new Car("AB12" , CarColor.YELLOW);
@@ -115,7 +133,8 @@ class ParkingLotTest {
 
     @Test
     public void testFindCarByRegistrationNumber() throws Exception {
-        ParkingLot parkingLot = new ParkingLot(5);
+        ParkingLotOwner owner = new ParkingLotOwner();
+        ParkingLot parkingLot = new ParkingLot(5,owner);
         Car firstCar = new Car("AB12" , CarColor.RED);
         Car secondCar = new Car("AB13" , CarColor.YELLOW);
 
@@ -128,7 +147,8 @@ class ParkingLotTest {
 
     @Test
     public void testFindCarByRegistrationNumberForCarNotPresent() throws Exception {
-        ParkingLot parkingLot = new ParkingLot(5);
+        ParkingLotOwner owner = new ParkingLotOwner();
+        ParkingLot parkingLot = new ParkingLot(5,owner);
         Car firstCar = new Car("AB12" , CarColor.RED);
         Car secondCar = new Car("AB13" , CarColor.YELLOW);
 
@@ -141,7 +161,8 @@ class ParkingLotTest {
 
     @Test
     public void testCountCarsByColorWithMock() throws Exception {
-        ParkingLot parkingLot = new ParkingLot(3);
+        ParkingLotOwner owner = new ParkingLotOwner();
+        ParkingLot parkingLot = new ParkingLot(3,owner);
         Car mockedCar = mock(Car.class);
         when(mockedCar.isColor(CarColor.RED)).thenReturn(true);
 
@@ -159,8 +180,9 @@ class ParkingLotTest {
 
     @Test
     public void testParkingLotParkVerifyApiCall() throws Exception {
+        ParkingLotOwner owner = new ParkingLotOwner();
         //spying
-        ParkingLot spyParkingLot = spy(new ParkingLot(3));
+        ParkingLot spyParkingLot = spy(new ParkingLot(3,owner));
         Car firstCar = new Car("AB12" , CarColor.RED);
 
         spyParkingLot.park(firstCar);
@@ -171,7 +193,8 @@ class ParkingLotTest {
 
     @Test
     public void testParkingLotUnParkCar() throws Exception {
-        ParkingLot parkingLot = new ParkingLot(3);
+        ParkingLotOwner owner = new ParkingLotOwner();
+        ParkingLot parkingLot = new ParkingLot(3,owner);
         Car carToBeUnParked = new Car("AB12" , CarColor.RED);
         Ticket parkedTicket = parkingLot.park(carToBeUnParked);
 
@@ -182,7 +205,8 @@ class ParkingLotTest {
 
     @Test
     public void testParkingLotUnParkingCarThatIsNotParked() throws Exception {
-        ParkingLot parkingLot = new ParkingLot(3);
+        ParkingLotOwner owner = new ParkingLotOwner();
+        ParkingLot parkingLot = new ParkingLot(3,owner);
         Car firstCar = new Car("AB12" , CarColor.RED);
 
         Ticket parkedTicket = parkingLot.park(firstCar);
@@ -195,8 +219,9 @@ class ParkingLotTest {
 
     @Test
     public void testParkingLotUnParkCarWithWrongTicket() throws Exception {
-        ParkingLot firstParkingLot = new ParkingLot(3);
-        ParkingLot secondParkingLot = new ParkingLot(3);
+        ParkingLotOwner owner = new ParkingLotOwner();
+        ParkingLot firstParkingLot = new ParkingLot(3,owner);
+        ParkingLot secondParkingLot = new ParkingLot(3,owner);
         Car firstCar = new Car("AB12" , CarColor.RED);
         Car secondCar = new Car("AB13" , CarColor.RED);
 
@@ -208,7 +233,8 @@ class ParkingLotTest {
 
     @Test
     public void testParkingLotIsFullAfterUnParkingCar() throws Exception {
-        ParkingLot firstParkingLot = new ParkingLot(1);
+        ParkingLotOwner owner = new ParkingLotOwner();
+        ParkingLot firstParkingLot = new ParkingLot(1,owner);
         Car firstCar = new Car("AB12" , CarColor.RED);
         Car secondCar = new Car("AB13" , CarColor.RED);
         Ticket ticket = firstParkingLot.park(firstCar);

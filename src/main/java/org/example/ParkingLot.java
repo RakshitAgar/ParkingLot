@@ -2,10 +2,8 @@ package org.example;
 
 
 import org.example.Enums.CarColor;
-import org.example.Exceptions.CarAlreadyPresentException;
-import org.example.Exceptions.CarNotFoundException;
-import org.example.Exceptions.InvalidTicketException;
-import org.example.Exceptions.ParkingSlotFilled;
+import org.example.Exceptions.*;
+import org.example.Interfaces.Notifiable;
 
 import java.util.*;
 
@@ -14,23 +12,25 @@ public class ParkingLot {
     private final int lotSize;
     private final ParkingSlot[] parkingSlots;
     private final Map<Ticket,ParkingSlot> parkedSlotMap;
-    private ParkingLotOwner observer;
+    private ParkingLotOwner owner;
+    private final List<Notifiable> observers;
 
-    public ParkingLot(int lotSize) throws Exception {
+    public ParkingLot(int lotSize, ParkingLotOwner owner) throws Exception {
         if (lotSize < 1) {
             throw new Exception("LotSize must be greater than 0");
         }
+        if (owner == null) {
+            throw new NoOwnerAssignedException("No owner assigned to parking lot");
+        }
         this.lotSize = lotSize;
+        this.owner = owner;
         this.isFull = false;
         this.parkingSlots = new ParkingSlot[lotSize];
         this.parkedSlotMap = new HashMap<>();
+        this.observers = new ArrayList<>();
         for (int i = 0; i < lotSize; i++) {
             parkingSlots[i] = new ParkingSlot();
         }
-    }
-
-    public void setObserver(ParkingLotOwner observer) {
-        this.observer = observer;
     }
 
     public Ticket park(Car car) throws Exception {
@@ -45,9 +45,7 @@ public class ParkingLot {
         //Updating the Parking Lot Status
         if(parkedSlotMap.size() == lotSize) {
             isFull = true;
-//            if (observer != null) {
-//                observer.updateParkingLotStatus(this,true);
-//            }
+           notifyIfFull();
         }
         return ticket;
 
@@ -84,14 +82,15 @@ public class ParkingLot {
         if (slot == null) {
             throw new InvalidTicketException("Invalid ticket number.");
         }
+
         Car car = slot.vacate();
-        if(isParkingLotFull()){
-            isFull = false;
-//            if (observer != null) {
-//                observer.updateParkingLotStatus(this,false);
-//            }
-        }
         parkedSlotMap.remove(ticket);
+
+        if (isParkingLotFull()) {
+            isFull = false;
+            notifyIfAvailable();
+        }
+
         return car;
 
     }
@@ -113,5 +112,20 @@ public class ParkingLot {
     private boolean isCarAlreadyParked(Car car) {
         return parkedSlotMap.values().stream()
                 .anyMatch(slot -> slot.isOccupiedBy(car));
+    }
+
+    private void notifyIfFull() {
+        for (Notifiable observer : observers) {
+            observer.notifyFull(this);
+        }
+    }
+
+    private void notifyIfAvailable() {
+        for (Notifiable observer : observers) {
+            observer.notifyAvailable(this);
+        }
+    }
+    public void registerObserver(Notifiable observer) {
+        observers.add(observer);
     }
 }
