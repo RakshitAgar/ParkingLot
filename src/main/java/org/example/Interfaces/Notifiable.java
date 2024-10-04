@@ -3,7 +3,7 @@ package org.example.Interfaces;
 import org.example.ParkingLot;
 
 public interface Notifiable {
-    void notifyFull (ParkingLot parkingLot);
-    void notifyAvailable(ParkingLot parkingLot);
+    void notifyFull (int parkingLotID);
+    void notifyAvailable(int parkingLotID);
 
 }

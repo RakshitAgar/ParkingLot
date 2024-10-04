@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 class ParkingLotAttendantTest {
 
@@ -274,14 +275,13 @@ class ParkingLotAttendantTest {
     @Test
     public void testMixedParkingLotAttendant() throws Exception {
         ParkingLotOwner owner = new ParkingLotOwner();
-        ParkingLot firstParkingLot = new ParkingLot(3,owner);
-        ParkingLot secondParkingLot = new ParkingLot(2,owner);
-        ParkingLot thirdParkingLot = new ParkingLot(1,owner);
+        ParkingLot firstParkingLot = spy(new ParkingLot(3,owner));
+        ParkingLot secondParkingLot = spy(new ParkingLot(2,owner));
+        ParkingLot thirdParkingLot = spy(new ParkingLot(1,owner));
         Car firstCar = new Car("UP81", CarColor.RED);
         Car secondCar = new Car("UP82", CarColor.RED);
         Car thirdCar = new Car("UP83", CarColor.RED);
         Car fourthCar = new Car("UP84", CarColor.RED);
-        Car fifthCar = new Car("UP85", CarColor.RED);
         ParkingLotAttendant attendant = new ParkingLotAttendant();
         ParkingLotAttendant smartAttendant = new ParkingLotAttendant(new SmartStrategy());
         attendant.assign(firstParkingLot);
@@ -292,8 +292,12 @@ class ParkingLotAttendantTest {
         smartAttendant.assign(thirdParkingLot);
 
         attendant.park(firstCar);
+        verify(firstParkingLot,times(1)).park(firstCar);
+        verify(secondParkingLot,times(0)).park(firstCar);
         smartAttendant.park(secondCar);
+        verify(secondParkingLot,times(1)).park(secondCar);
         attendant.park(thirdCar);
+        verify(firstParkingLot,times(1)).park(thirdCar);
         smartAttendant.park(fourthCar);
         assertTrue(thirdParkingLot.isParkingLotFull());
 

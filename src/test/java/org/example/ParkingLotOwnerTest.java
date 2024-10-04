@@ -180,10 +180,11 @@ class ParkingLotOwnerTest {
         owner.assignParkingLotToItself(parkingLot);
 
 
-        verify(owner,times(0)).notifyFull(parkingLot);
+        verify(owner,times(0)).notifyFull(anyInt());
         owner.park(firstCar);
-        verify(owner,times(1)).notifyFull(parkingLot);
+        verify(owner,times(1)).notifyFull(anyInt());
     }
+
 
     @Test
     public void testNotifyFullWhenParkingLotIsAvailable() throws Exception {
@@ -192,14 +193,37 @@ class ParkingLotOwnerTest {
         Car firstCar = new Car("UP81", CarColor.BLUE);
         owner.assignParkingLotToItself(parkingLot);
 
-        verify(owner,times(0)).notifyAvailable(parkingLot);
+        verify(owner,times(0)).notifyAvailable(anyInt());
         Ticket ticket = owner.park(firstCar);
-        verify(owner,times(1)).notifyFull(parkingLot);
+        verify(owner,times(1)).notifyFull(anyInt());
         owner.unPark(ticket);
 
-        verify(owner,times(0)).notifyAvailable(parkingLot);
+        verify(owner,times(1)).notifyAvailable(anyInt());
     }
 
+    // testing when owner is using the SmartStrategy while Parking
+    @Test
+    public void testParkingLotOwnerUsingSmartStrategy() throws Exception {
+        ParkingLotOwner smartOwner = new ParkingLotOwner(new SmartStrategy());
+        ParkingLot firstParkingLot = smartOwner.createParkingLot(2);
+        ParkingLot secondParkingLot = smartOwner.createParkingLot(1);
+        Car firstCar = new Car("UP81", CarColor.BLUE);
+        Car secondCar = new Car("UP82", CarColor.BLUE);
+        Car thirdCar = new Car("UP83", CarColor.BLUE);
+        smartOwner.assignParkingLotToItself(firstParkingLot);
+        smartOwner.assignParkingLotToItself(secondParkingLot);
+
+        smartOwner.park(firstCar);
+        assertFalse(secondParkingLot.isParkingLotFull());
+        assertFalse(firstParkingLot.isParkingLotFull());
+
+        smartOwner.park(secondCar);
+        assertTrue(secondParkingLot.isParkingLotFull());
+        assertFalse(firstParkingLot.isParkingLotFull());
+
+        smartOwner.park(thirdCar);
+        assertTrue(firstParkingLot.isParkingLotFull());
+    }
 
 
 }

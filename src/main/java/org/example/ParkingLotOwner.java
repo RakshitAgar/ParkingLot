@@ -12,7 +12,7 @@ import java.util.Map;
 
 public class ParkingLotOwner extends ParkingLotAttendant implements Notifiable {
     private List<ParkingLot> ownedParkingLot;
-    private Map<ParkingLot, SlotStatus> parkingLotStatus;
+    private Map<Integer, SlotStatus> parkingLotStatus;
     private ParkingStrategy strategy;
 
     public ParkingLotOwner(ParkingStrategy strategy) {
@@ -31,7 +31,6 @@ public class ParkingLotOwner extends ParkingLotAttendant implements Notifiable {
     public ParkingLot createParkingLot(int size) throws Exception {
         ParkingLot parkingLot = new ParkingLot(size, this);
         parkingLot.registerObserver(this);
-        parkingLotStatus.put(parkingLot,SlotStatus.AVAILABLE);
         this.ownedParkingLot.add(parkingLot);
         return parkingLot;
     }
@@ -51,18 +50,12 @@ public class ParkingLotOwner extends ParkingLotAttendant implements Notifiable {
     }
 
     @Override
-    public void notifyFull(ParkingLot parkingLot) {
-        if(!ownedParkingLot.contains(parkingLot)) {
-            throw new NotOwnedParkingLotException("This ParkingLot is Not Owned by this Owner");
-        }
-        parkingLotStatus.put(parkingLot, SlotStatus.OCCUPIED);
+    public void notifyFull(int parkingLotID) {
+        parkingLotStatus.put(parkingLotID, SlotStatus.OCCUPIED);
     }
 
     @Override
-    public void notifyAvailable(ParkingLot parkingLot) {
-        if(!ownedParkingLot.contains(parkingLot)) {
-            throw new NotOwnedParkingLotException("This ParkingLot is Not Owned by this Owner");
-        }
-        parkingLotStatus.put(parkingLot, SlotStatus.AVAILABLE);
+    public void notifyAvailable(int parkingLotID) {
+        parkingLotStatus.put(parkingLotID, SlotStatus.AVAILABLE);
     }
 }

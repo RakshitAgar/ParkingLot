@@ -7,15 +7,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class PoliceMan implements Notifiable {
-    private Map<ParkingLot, SlotStatus> parkingLotStatus = new HashMap<>();
+    private Map<Integer, SlotStatus> parkingLotStatus = new HashMap<>();
 
     @Override
-    public void notifyFull(ParkingLot parkingLot) {
-        parkingLotStatus.put(parkingLot, SlotStatus.OCCUPIED);
+    public void notifyFull(int parkingLotID) {
+        parkingLotStatus.put(parkingLotID, SlotStatus.OCCUPIED);
     }
 
     @Override
-    public void notifyAvailable(ParkingLot parkingLot) {
-        parkingLotStatus.put(parkingLot, SlotStatus.OCCUPIED);
+    public void notifyAvailable(int parkingLotID) {
+        parkingLotStatus.put(parkingLotID, SlotStatus.AVAILABLE);
     }
 }

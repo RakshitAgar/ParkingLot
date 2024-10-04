@@ -14,6 +14,7 @@ public class ParkingLot {
     private final Map<Ticket,ParkingSlot> parkedSlotMap;
     private ParkingLotOwner owner;
     private final List<Notifiable> observers;
+    private final int parkingLotId;
 
     public ParkingLot(int lotSize, ParkingLotOwner owner) throws Exception {
         if (lotSize < 1) {
@@ -23,6 +24,7 @@ public class ParkingLot {
             throw new NoOwnerAssignedException("No owner assigned to parking lot");
         }
         this.lotSize = lotSize;
+        this.parkingLotId = hashCode();
         this.owner = owner;
         this.isFull = false;
         this.parkingSlots = new ParkingSlot[lotSize];
@@ -84,25 +86,18 @@ public class ParkingLot {
         }
 
         Car car = slot.vacate();
-        parkedSlotMap.remove(ticket);
-
         if (isParkingLotFull()) {
             isFull = false;
             notifyIfAvailable();
         }
 
+        parkedSlotMap.remove(ticket);
         return car;
 
     }
 
     public boolean isParkingLotFull() {
-        try {
-            findNearestAvailableSlot();
-            return false;
-        }
-        catch (ParkingSlotFilled e) {
-            return true;
-        }
+        return isFull;
     }
 
     public int availableSlots() {
@@ -116,13 +111,13 @@ public class ParkingLot {
 
     private void notifyIfFull() {
         for (Notifiable observer : observers) {
-            observer.notifyFull(this);
+            observer.notifyFull(parkingLotId);
         }
     }
 
     private void notifyIfAvailable() {
         for (Notifiable observer : observers) {
-            observer.notifyAvailable(this);
+            observer.notifyAvailable(parkingLotId);
         }
     }
     public void registerObserver(Notifiable observer) {
