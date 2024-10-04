@@ -8,7 +8,6 @@ import org.example.Exceptions.ParkingSlotFilled;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 class ParkingLotAttendantTest {
@@ -22,6 +21,13 @@ class ParkingLotAttendantTest {
 
         assertDoesNotThrow(() -> firstAttendant.assign(firstParkingLot));
         assertDoesNotThrow(() -> firstAttendant.assign(secondParkingLot));
+    }
+
+    @Test
+    public void testSmartParkingLotAttendantCreation() {
+        assertDoesNotThrow(() -> {
+            new ParkingLotAttendant(new SmartStrategy());
+        });
     }
 
 
@@ -270,8 +276,7 @@ class ParkingLotAttendantTest {
     }
 
 
-    // --> Add the Spying in this test
-    //Testing Having 3 ParkingLot With Smart and Normal parkingLot
+    //Testing Having 3 ParkingLot With Smart and Normal ParkingLotAttendant
     @Test
     public void testMixedParkingLotAttendant() throws Exception {
         ParkingLotOwner owner = new ParkingLotOwner();
@@ -300,7 +305,6 @@ class ParkingLotAttendantTest {
         verify(firstParkingLot,times(1)).park(thirdCar);
         smartAttendant.park(fourthCar);
         assertTrue(thirdParkingLot.isParkingLotFull());
-
     }
 
 }
